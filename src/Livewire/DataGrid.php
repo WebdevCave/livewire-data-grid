@@ -3,6 +3,7 @@
 namespace WebdevCave\Livewire\DataGrid\Livewire;
 
 use Exception;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Arr;
@@ -11,7 +12,7 @@ use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 use WebdevCave\Livewire\DataGrid\DatagridFilterInterface;
-use WebdevCave\Livewire\DataGrid\DatagridSource;
+use WebdevCave\Livewire\DataGrid\DatagridSettings;
 use WebdevCave\Livewire\DataGrid\Traits\CallableSource;
 
 class DataGrid extends Component
@@ -21,6 +22,7 @@ class DataGrid extends Component
         setPage as traitSetPage;
     }
 
+    protected static ?string $defaultTemplate = null;
     protected static array $filterClasses = [];
     private static array $currentFilters = [];
 
@@ -40,14 +42,14 @@ class DataGrid extends Component
 
     public ?string $template = null;
 
-    public array $source = [];
+    public array $settings = [];
 
     /**
      * @return void
      */
     public function clearFilters(): void
     {
-        foreach ($this->source['columns'] as $column) {
+        foreach ($this->settings['columns'] as $column) {
             if (empty($column['from'])) {
                 continue;
             }
@@ -66,7 +68,7 @@ class DataGrid extends Component
      */
     public function clearSorting(): void
     {
-        foreach ($this->source['columns'] as $column) {
+        foreach ($this->settings['columns'] as $column) {
             if (empty($column['from'])) {
                 continue;
             }
@@ -78,17 +80,17 @@ class DataGrid extends Component
     /**
      * @return void
      */
-    public function mount(string|array $source = []): void
+    public function mount(string|array $settings = []): void
     {
         $request = request();
 
-        $source = $this->invokeSource($source);
-        if (!($source instanceof DatagridSource)) {
-            $sourceClass = DatagridSource::class;
-            throw new InvalidArgumentException("Source must return a '$sourceClass' intance");
+        $settings = $this->invokeSource($settings);
+        if (!($settings instanceof DatagridSettings)) {
+            $settingsClass = DatagridSettings::class;
+            throw new InvalidArgumentException("Source must return a '$settingsClass' intance");
         }
 
-        $this->source = $source->toArray();
+        $this->settings = $settings->toArray();
         $this->clearFilters();
         $this->clearSorting();
 
@@ -110,16 +112,20 @@ class DataGrid extends Component
         $this->checkForColumnInjection();
         $this->loadCurrentFilters();
 
-        $query = $this->source['queryProvider']();
+        /* @var $pagination LengthAwarePaginator */
+        $pagination = $this->settings['queryProvider'](function($query) {
+            self::applyFilters($query, $this->filter);
+            self::applySorting($query, $this->sorting);
+        }, $this->rowsPerPage);
 
-        self::applyFilters($query, $this->filter);
-        self::applySorting($query, $this->sorting);
+        if (!($pagination instanceof LengthAwarePaginator)) {
+            throw new Exception('The query provider must return a '.LengthAwarePaginator::class);
+        }
 
-        $pagination = $query->paginate($this->rowsPerPage);
         $filterClasses = self::$filterClasses;
 
-        $template = $this->template ?? 'data-grid::'.config('data-grid.theme').'.table';
-        return view($template, compact('pagination', 'filterClasses', 'template'));
+        $template = $this->template ?? self::$defaultTemplate ?? 'data-grid::'.config('data-grid.theme').'.table';
+        return view($template, compact('pagination', 'filterClasses'));
     }
 
     public function setPage($page, $pageName = 'page')
@@ -150,7 +156,7 @@ class DataGrid extends Component
      */
     private function checkForColumnInjection(): void
     {
-        $trustedColumns = array_column($this->source['columns'], 'from');
+        $trustedColumns = array_column($this->settings['columns'], 'from');
         $untrustedColumns = array_map(function($v) {
             if (!is_string($v)) {
                 return $v;
@@ -165,11 +171,14 @@ class DataGrid extends Component
         }
     }
 
+    /**
+     * @return void
+     */
     private function loadCurrentFilters()
     {
         self::$currentFilters = [];
 
-        foreach ($this->source['columns'] as $column) {
+        foreach ($this->settings['columns'] as $column) {
             if (isset(self::$filterClasses[$column['filter']])){
                 self::$currentFilters[$column['from']] = self::$filterClasses[$column['filter']];
             }

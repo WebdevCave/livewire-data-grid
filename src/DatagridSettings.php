@@ -4,7 +4,7 @@ namespace WebdevCave\Livewire\DataGrid;
 
 use WebdevCave\Livewire\DataGrid\Traits\CallableSource;
 
-class DatagridSource
+class DatagridSettings
 {
     use CallableSource;
 
