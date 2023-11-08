@@ -1,6 +1,7 @@
 {
     "name": "webdevcave/livewire-datagrid",
     "description": "A data-grid component for Livewire",
+    "license": "MIT",
     "authors": [
         {
             "name": "Carlos Alberto Bertholdo Carucce",
