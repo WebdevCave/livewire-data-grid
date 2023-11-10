@@ -9,5 +9,6 @@ return [
     'actions' => [
         'clear-filters' => 'Clear filters',
         'clear-sorting' => 'Reset sorting',
-    ]
+    ],
+    'no-items-found' => 'No items found',
 ];

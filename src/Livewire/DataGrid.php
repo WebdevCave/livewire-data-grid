@@ -22,6 +22,8 @@ class DataGrid extends Component
         setPage as traitSetPage;
     }
 
+    protected $listeners = ['refresh-grid' => '$refresh'];
+
     protected static ?string $defaultTemplate = null;
     protected static array $filterClasses = [];
     private static array $currentFilters = [];
@@ -208,6 +210,8 @@ class DataGrid extends Component
      */
     private static function applySorting(Builder|EloquentBuilder $query, array $sorting): void
     {
+        $query->reorder();
+
         foreach ($sorting as $column => $direction) {
             if (empty($direction) || !in_array($direction, ['asc', 'desc'])) {
                 continue;

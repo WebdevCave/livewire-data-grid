@@ -3,18 +3,18 @@
     <div class="table-responsive">
         <table class="table table-hover table-bordered">
             <colgroup>
-                @foreach($source['columns'] as $column)
+                @foreach($settings['columns'] as $column)
                     <col style="width: {{ $column['width'] }}"/>
                 @endforeach
             </colgroup>
             <thead>
             <tr>
-                <td colspan="{{ count($source['columns']) }}" class="text-end">
-                    @if($source['actions'])
-                        {!! $source['actions']() !!}
+                <td colspan="{{ count($settings['columns']) }}" class="text-end">
+                    @if($settings['actions'])
+                        {!! $settings['actions']() !!}
                     @endif
 
-                    @if($source['hasFilters'])
+                    @if($settings['hasFilters'])
                         <button class="btn btn-secondary" wire:click="clearFilters" type="button">
                             {{ __('data-grid::data-grid.actions.clear-filters') }}
                         </button>
@@ -25,9 +25,9 @@
                     </button>
                 </td>
             </tr>
-            @if($source['hasFilters'])
+            @if($settings['hasFilters'])
                 <tr style="vertical-align: top">
-                    @foreach($source['columns'] as $column)
+                    @foreach($settings['columns'] as $column)
                         <td>
                             @if($column['filter'] && $column['from'])
                                 {!! [$filterClasses[$column['filter']], 'template']('filter.'.$column['from']) !!}
@@ -37,7 +37,7 @@
                 </tr>
             @endif
             <tr>
-                @foreach($source['columns'] as $column)
+                @foreach($settings['columns'] as $column)
                     <th>
                         <div class="row m-0">
                             <div class="col px-0">
@@ -89,7 +89,7 @@
             <tbody>
             @forelse($pagination as $row)
                 <tr>
-                    @foreach($source['columns'] as $column)
+                    @foreach($settings['columns'] as $column)
                         @empty($column['renderer'])
                             <td>{{ $row->{$column['from']} }}</td>
                         @else
@@ -99,7 +99,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="4" class="text-center">Nenhum item foi encontrado</td>
+                    <td colspan="4" class="text-center">{{ __('data-grid::data-grid.no-items-found') }}</td>
                 </tr>
             @endforelse
             </tbody>
