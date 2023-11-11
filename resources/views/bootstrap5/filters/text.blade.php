@@ -1,1 +1,1 @@
-<input type="text" class="form-control" wire:model.live.debounce="{{ $wire }}"/>
+<input type="text" class="form-control" wire:model.live.debounce="{{ $wire }}" placeholder="{{ $column['label'] }}"/>

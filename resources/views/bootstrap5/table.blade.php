@@ -1,7 +1,7 @@
-<div class="datatable container-fluid">
+<div class="data-grid container-fluid m-0 p-0">
     {{ $template }}
     <div class="table-responsive">
-        <table class="table table-hover table-bordered">
+        <table class="table table-hover">
             <colgroup>
                 @foreach($settings['columns'] as $column)
                     <col style="width: {{ $column['width'] }}"/>
@@ -14,33 +14,22 @@
                         {!! $settings['actions']() !!}
                     @endif
 
-                    @if($settings['hasFilters'])
-                        <button class="btn btn-secondary" wire:click="clearFilters" type="button">
-                            {{ __('data-grid::data-grid.actions.clear-filters') }}
-                        </button>
-                    @endif
+                    <button class="btn btn-sm btn-secondary" wire:click="clearFilters" type="button">
+                        <i class="bi bi-x-lg"></i>
+                        {{ __('data-grid::data-grid.actions.clear-filters') }}
+                    </button>
 
-                    <button class="btn btn-secondary" wire:click="clearSorting" type="button">
+                    <button class="btn btn-sm btn-secondary" wire:click="clearSorting" type="button">
+                        <i class="bi bi-x-lg"></i>
                         {{ __('data-grid::data-grid.actions.clear-sorting') }}
                     </button>
                 </td>
             </tr>
-            @if($settings['hasFilters'])
-                <tr style="vertical-align: top">
-                    @foreach($settings['columns'] as $column)
-                        <td>
-                            @if($column['filter'] && $column['from'])
-                                {!! [$filterClasses[$column['filter']], 'template']('filter.'.$column['from']) !!}
-                            @endif
-                        </td>
-                    @endforeach
-                </tr>
-            @endif
             <tr>
                 @foreach($settings['columns'] as $column)
                     <th>
                         <div class="row m-0">
-                            <div class="col px-0">
+                            <div @class(['col px-0','text-center' => !$column['from'] || !$column['sorting']])>
                                 <span class="text-truncate mb-2">{{ $column['label'] }}</span>
                             </div>
                             <div class="col-auto px-0">
@@ -84,6 +73,17 @@
                     </th>
                 @endforeach
             </tr>
+            @if($settings['hasFilters'])
+                <tr style="vertical-align: top">
+                    @foreach($settings['columns'] as $column)
+                        <td>
+                            @if($column['filter'] && $column['from'])
+                                {!! [$filterClasses[$column['filter']], 'template']('filters.'.$column['from'], $column) !!}
+                            @endif
+                        </td>
+                    @endforeach
+                </tr>
+            @endif
             </thead>
 
             <tbody>

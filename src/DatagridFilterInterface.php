@@ -10,7 +10,7 @@ interface DatagridFilterInterface
     /**
      * @return string
      */
-    public static function template(string $wire): string;
+    public static function template(string $wire, array $column): string;
 
     /**
      * @param Builder|EloquentBuilder $builder

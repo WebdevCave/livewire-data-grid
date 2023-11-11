@@ -13,10 +13,11 @@ class TextFilter implements DatagridFilterInterface
      * @param string $wire
      * @return string
      */
-    public static function template(string $wire): string
+    public static function template(string $wire, array $column): string
     {
         return view(
-            'data-grid::'.config('data-grid.theme').'.filters.text', compact('wire')
+            'data-grid::'.config('data-grid.theme').'.filters.text',
+            compact('wire', 'column')
         )->render();
     }
 

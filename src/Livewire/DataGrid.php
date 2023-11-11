@@ -29,7 +29,7 @@ class DataGrid extends Component
     private static array $currentFilters = [];
 
     #[Url]
-    public array $filter = [];
+    public array $filters = [];
 
     #[Url]
     public array $sorting = [];
@@ -61,7 +61,7 @@ class DataGrid extends Component
                 $defaultFilter = [self::$filterClasses[$column['filter']], 'defaultValue']();
             }
 
-            $this->filter[$column['from']] = $defaultFilter;
+            $this->filters[$column['from']] = $defaultFilter;
         }
     }
 
@@ -116,7 +116,7 @@ class DataGrid extends Component
 
         /* @var $pagination LengthAwarePaginator */
         $pagination = $this->settings['queryProvider'](function($query) {
-            self::applyFilters($query, $this->filter);
+            self::applyFilters($query, $this->filters);
             self::applySorting($query, $this->sorting);
         }, $this->rowsPerPage);
 
@@ -165,7 +165,7 @@ class DataGrid extends Component
             }
 
             return explode('.', $v)[0];
-        }, array_keys($this->sorting), array_keys($this->filter));
+        }, array_keys($this->sorting), array_keys($this->filters));
 
         $differences = array_diff($untrustedColumns, $trustedColumns);
         if (!empty($differences)) {

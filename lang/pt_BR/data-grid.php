@@ -10,5 +10,11 @@ return [
         'clear-filters' => 'Limpar Filtros',
         'clear-sorting' => 'Limpar Ordenação',
     ],
+    'filters' => [
+        'date-range' => [
+            'from' => 'De',
+            'to' => 'Até',
+        ]
+    ],
     'no-items-found' => 'Nenhum item encontrado',
 ];

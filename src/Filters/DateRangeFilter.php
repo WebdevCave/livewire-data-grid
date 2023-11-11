@@ -12,10 +12,11 @@ class DateRangeFilter implements DatagridFilterInterface
      * @param string $wire
      * @return string
      */
-    public static function template(string $wire): string
+    public static function template(string $wire, array $column): string
     {
         return view(
-            'data-grid::'.config('data-grid.theme').'.filters.date-range', compact('wire')
+            'data-grid::'.config('data-grid.theme').'.filters.date-range',
+            compact('wire', 'column')
         )->render();
     }
 
