@@ -2,6 +2,7 @@
 
 return [
     'sort' => [
+        'change-btn' => 'Ordenar',
         'ascending' => 'Crescente',
         'descending' => 'Decrescente',
         'default' => 'Padrão'

@@ -2,6 +2,7 @@
 
 return [
     'sort' => [
+        'change-btn' => 'Sort column',
         'ascending' => 'Ascending',
         'descending' => 'Descending',
         'default' => 'Default'

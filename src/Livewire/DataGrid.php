@@ -7,6 +7,7 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -115,7 +116,9 @@ class DataGrid extends Component
         $this->loadCurrentFilters();
 
         /* @var $pagination LengthAwarePaginator */
-        $pagination = $this->settings['queryProvider'](function($query) {
+        $pagination = $this->settings['queryProvider'](function(&$query) {
+            $query = DB::query()->fromSub($query, 'vw');
+
             self::applyFilters($query, $this->filters);
             self::applySorting($query, $this->sorting);
         }, $this->rowsPerPage);
@@ -210,14 +213,16 @@ class DataGrid extends Component
      */
     private static function applySorting(Builder|EloquentBuilder $query, array $sorting): void
     {
-        $query->reorder();
+        if (!empty(array_filter(array_values($sorting)))) {
+            $query->reorder();
 
-        foreach ($sorting as $column => $direction) {
-            if (empty($direction) || !in_array($direction, ['asc', 'desc'])) {
-                continue;
+            foreach ($sorting as $column => $direction) {
+                if (empty($direction) || !in_array($direction, ['asc', 'desc'])) {
+                    continue;
+                }
+
+                $query->orderBy($column, $direction);
             }
-
-            $query->orderBy($column, $direction);
         }
     }
 
